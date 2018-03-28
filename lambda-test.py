@@ -3,12 +3,10 @@ def lambda_handler(event, context):
     import uuid
     import boto3
     from botocore.exceptions import ClientError
+    #print ("this is the event {}".format(event))
+    message = event['Records'][0]['Sns']['Message']
     myuuid = uuid.uuid4()
-    print('Hello from lambda')
-    print("My uuid is",myuuid)
-    print(event)
-    print("____________________________")
-    print(context.aws_request_id)
+
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('UserPasswordReset')
     title = "The Big New Movie"
@@ -16,21 +14,13 @@ def lambda_handler(event, context):
 
     response = table.put_item(
     Item={
-            'id': event["email"],
+            'id': message,
             'uuid': str(myuuid)
         }
     )
 
-    print("PutItem succeeded:")
-    print(response)
-    #context.getLogger().log("1",event.getRecords().size())
-
-
-
-
-
-    SENDER = "Sender Name <gurao.a@husky.neu.edu>"
-    RECIPIENT =  event["email"]
+    SENDER = "Sender Name <noreply@csye6225-spring2018-guraoa.me>"
+    RECIPIENT =  message
     AWS_REGION = "us-east-1"
     SUBJECT = "Amazon SES Test (SDK for Python)"
     BODY_TEXT = ("Amazon SES Test (Python)\r\n"
@@ -51,6 +41,7 @@ def lambda_handler(event, context):
     CHARSET = "UTF-8"
 
     client = boto3.client('ses',region_name=AWS_REGION)
+    #print ("the ses event is {}".format(ses_event.get_identity_mail_from_domain_attributes(['Identities'])))
 
     try:
         #Provide the contents of the email.
@@ -85,7 +76,4 @@ def lambda_handler(event, context):
     else:
         print("Email sent! Message ID:"),
     print(response['ResponseMetadata']['RequestId'])
-
-
-    return 'Hello from Lambda'
     
