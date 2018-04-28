@@ -15,9 +15,10 @@ def lambda_handler(event, context):
         #print (now)
         ttl_time = int(now + 60*2) #make this 20 later on. just 2 for testing
         #initialize dynamodb
+        print(now)
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('csye6225')
-        response = table.put_item(Item={'ID':message,'token':myuuid,'ttl':ttl_time},ConditionExpression= "(ID <> :id) OR (ID = :id AND #t < :ttl)",ExpressionAttributeNames={"#t": "ttl"},ExpressionAttributeValues={":id" : message, ":ttl":ttl_time})
+        response = table.put_item(Item={'ID':message,'token':myuuid,'ttl':ttl_time},ConditionExpression= "(ID = :id AND #t < :now) OR (ID <> :id)",ExpressionAttributeNames={"#t": "ttl"},ExpressionAttributeValues={":id" : message, ":now" : now})
         make_email(message,myuuid)
     except ClientError as e:
         print (e)
